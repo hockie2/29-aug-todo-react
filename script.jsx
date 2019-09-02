@@ -1,18 +1,83 @@
-class List extends React.Component {
+class DoneList extends React.Component {
+
+  render() {
+
+        let doneItem = this.props.doneList.map((item, index)=>{
+            return(
+                    <li key={index}>{item}</li>
+                )
+        })
+
+      return (
+        <ol>
+            {doneItem}
+        </ol>
+      );
+  }
+}
+
+
+class Form extends React.Component {
+
+  render() {
+
+      return (
+            <form className="submit-form input-group mb-3" onSubmit={(event) => { this.props.addItem(event) }}>
+                <input className="form-control" onChange={(event)=>{this.props.input(event)}} value={this.props.word}/>
+                <button type="submit" className="btn btn-primary">add item</button>
+            </form>
+      );
+  }
+}
+
+
+
+class ToDoItem extends React.Component {
+
+  render() {
+
+     // render the list with a map() here
+      const items = this.props.listItems.map((item, index)=>{
+
+        return(
+                <div className="item_wrapper"key = {index+item}>
+                    <div><li>{item}</li></div>
+                    <box-icon name='trash' onClick={()=>this.props.deleteItem(index)}/>
+                </div>
+            )
+      })
+
+      return (
+        <div>
+            { items }
+        </div>
+      );
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+class ItemList extends React.Component {
   constructor(){
     super();
+    this.inputHandler = this.inputHandler.bind( this );
+    this.deleteItem = this.deleteItem.bind( this );
+    this.addItem = this.addItem.bind( this );
 
     this.state = {
       word:"",
       list : [],
-      validation : ""
+      validation : "",
+      doneList : []
     }
   }
 
   deleteItem(index){
     const spliceList = this.state.list;
-    spliceList.splice(index, 1)
-    this.setState({spliceList});
+
+    const doneList = this.state.doneList;
+    doneList.push(spliceList.splice(index, 1))
+
+    this.setState({spliceList, doneList});
   }
 
 
@@ -45,33 +110,49 @@ class List extends React.Component {
   }
 
   render() {
-      // render the list with a map() here
-      const list = this.state.list;
-      const items = list.map((item, index)=>{
 
-        return(
-                <li key = {index+item} onClick={this.deleteItem.bind(this,index)}>{item}</li>
-            )
-      })
 
       // console.log("rendering");
       return (
-        <div className="list">
-            {this.state.validation}
-            <form className="submit-form" onSubmit={(event) => { this.addItem(event) }}>
-                <input onChange={(event)=>{this.inputHandler(event)}} value={this.state.word}/>
-                <button type="submit">add item</button>
-            </form>
-            <ol>
-                {items}
-            </ol>
+        <div className="todoapp_wrapper">
+                <div className="form_wrapper">
+                    <Form input={this.inputHandler} addItem={this.addItem} word={this.state.word}/>
+                    {this.state.validation}
+                </div>
+            <div className="list">
+                <ol>
+                    <ToDoItem listItems={this.state.list} deleteItem={this.deleteItem} addItem={this.addItem}/>
+                </ol>
+            </div>
+            <div className="donelist">
+                <h5>Done Tasks</h5>
+                <DoneList doneList={this.state.doneList} />
+            </div>
         </div>
       );
   }
 }
 
+
+
+
+class TodoApp extends React.Component {
+  constructor(){
+    super()
+  }
+
+  render() {
+      return (
+        <div>
+            <ItemList />
+        </div>
+      );
+  }
+}
+
+
+
 ReactDOM.render(
-    <List/>,
+    <TodoApp/>,
     document.getElementById('root')
 );
-
